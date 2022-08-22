@@ -1,30 +1,16 @@
 part of 'login_cubit.dart';
 
-abstract class LoginState {
-  const LoginState();
-}
-
-class LoginInitial extends LoginState {
-  const LoginInitial();
-}
-
-class LoginValidate extends LoginState {
-  final bool isValidate;
-
-  LoginValidate(this.isValidate);
-}
-
-class LoginLoading extends LoginState {
+class LoginState {
+  final bool response;
   final bool isLoading;
-  const LoginLoading(this.isLoading);
-}
+  const LoginState({required this.isLoading, required this.response});
 
-class LoggedIn extends LoginState {
-  final bool response;
-  const LoggedIn(this.response);
-}
+  LoginState copyWith({bool? response, bool? isLoading}) {
+    return LoginState(
+        response: response ?? this.response,
+        isLoading: isLoading ?? this.isLoading);
+  }
 
-class LoginError extends LoginState {
-  final bool response;
-  const LoginError(this.response);
+  @override
+  List<Object?> get props => [response, isLoading];
 }

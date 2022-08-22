@@ -20,46 +20,34 @@ class LoginView extends StatelessWidget {
         passwordController,
       ),
       child: Scaffold(
-        body: BlocConsumer<LoginCubit, LoginState>(
-          listener: ((context, state) {
-            if (state is LoginError) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('ERROR')));
-            }
-          }),
+        body: BlocBuilder<LoginCubit, LoginState>(
           builder: (context, state) {
-            if (state is LoginLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            return Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Center(
-                child: Form(
-                  autovalidateMode: state is LoginValidate
-                      ? state.isValidate
-                          ? AutovalidateMode.always
-                          : AutovalidateMode.disabled
-                      : AutovalidateMode.disabled,
-                  key: formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildEmailField(context),
-                      const SizedBox(
-                        height: 20,
+            return state.isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Center(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildEmailField(context),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            _buildPasswordField(context),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            _buildLoginButton(context),
+                          ],
+                        ),
                       ),
-                      _buildPasswordField(context),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      _buildLoginButton(context),
-                    ],
-                  ),
-                ),
-              ),
-            );
+                    ),
+                  );
           },
         ),
       ),
@@ -70,11 +58,6 @@ class LoginView extends StatelessWidget {
     return ElevatedButton(
       onPressed: () async {
         await context.read<LoginCubit>().loginWithEmail();
-        // .then((response) =>
-        //     response == true
-        //         ? Navigator.push(context,
-        //             MaterialPageRoute(builder: (context) => const HomeView()))
-        //         : null);
       },
       child: const Text('LOGIN'),
     );

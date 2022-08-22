@@ -8,8 +8,15 @@ class LoginInitial extends LoginState {
   const LoginInitial();
 }
 
+class LoginValidate extends LoginState {
+  final bool isValidate;
+
+  LoginValidate(this.isValidate);
+}
+
 class LoginLoading extends LoginState {
-  const LoginLoading();
+  final bool isLoading;
+  const LoginLoading(this.isLoading);
 }
 
 class LoggedIn extends LoginState {
@@ -18,5 +25,6 @@ class LoggedIn extends LoginState {
 }
 
 class LoginError extends LoginState {
-  const LoginError();
+  final bool response;
+  const LoginError(this.response);
 }

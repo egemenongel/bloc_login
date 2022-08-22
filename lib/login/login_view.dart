@@ -1,63 +1,104 @@
-import 'package:bloc_login/home/home_view.dart';
 import 'package:bloc_login/login/cubit/login_cubit.dart';
 import 'package:bloc_login/login/service/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginView extends StatelessWidget {
-  const LoginView({Key? key}) : super(key: key);
+  LoginView({Key? key}) : super(key: key);
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => LoginCubit(
+        context,
         LoginService(),
-        TextEditingController(),
-        TextEditingController(),
+        formKey,
+        emailController,
+        passwordController,
       ),
       child: Scaffold(
-        body: BlocBuilder<LoginCubit, LoginState>(
+        body: BlocConsumer<LoginCubit, LoginState>(
+          listener: ((context, state) {
+            if (state is LoginError) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('ERROR')));
+            }
+          }),
           builder: (context, state) {
-            if (state is LoginInitial || state is LoggedIn) {
-              return Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Center(
+            if (state is LoginLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Center(
+                child: Form(
+                  autovalidateMode: state is LoginValidate
+                      ? state.isValidate
+                          ? AutovalidateMode.always
+                          : AutovalidateMode.disabled
+                      : AutovalidateMode.disabled,
+                  key: formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextFormField(
-                          controller:
-                              context.read<LoginCubit>().emailController),
-                      TextFormField(
-                          controller:
-                              context.read<LoginCubit>().passwordController),
-                      ElevatedButton(
-                        onPressed: () async {
-                          bool response =
-                              await context.read<LoginCubit>().loginWithEmail();
-                          response == true
-                              ? Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const HomeView()))
-                              : null;
-                        },
-                        child: const Text('LOGIN'),
+                      _buildEmailField(context),
+                      const SizedBox(
+                        height: 20,
                       ),
+                      _buildPasswordField(context),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      _buildLoginButton(context),
                     ],
                   ),
                 ),
-              );
-            } else if (state is LoginLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else {
-              return const Center(
-                child: Text('ERROR'),
-              );
-            }
+              ),
+            );
           },
         ),
       ),
+    );
+  }
+
+  ElevatedButton _buildLoginButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        await context.read<LoginCubit>().loginWithEmail();
+        // .then((response) =>
+        //     response == true
+        //         ? Navigator.push(context,
+        //             MaterialPageRoute(builder: (context) => const HomeView()))
+        //         : null);
+      },
+      child: const Text('LOGIN'),
+    );
+  }
+
+  TextFormField _buildEmailField(BuildContext context) {
+    return TextFormField(
+      controller: context.read<LoginCubit>().emailController,
+      validator: (val) => val!.isEmpty ? 'Please fill this field' : null,
+      decoration: const InputDecoration(
+          labelText: 'Email',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)))),
+    );
+  }
+
+  TextFormField _buildPasswordField(BuildContext context) {
+    return TextFormField(
+      controller: context.read<LoginCubit>().passwordController,
+      validator: (val) => val!.isEmpty ? 'Please fill this field' : null,
+      decoration: const InputDecoration(
+          labelText: 'Password',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)))),
     );
   }
 }

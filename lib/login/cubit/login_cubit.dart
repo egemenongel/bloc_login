@@ -19,15 +19,17 @@ class LoginCubit extends Cubit<LoginState> {
       : super(const LoginState(response: false, isLoading: false));
 
   Future<void> loginWithEmail() async {
-    changeLoading();
-    final response = await _loginService
-        .logIn(User(emailController.text, passwordController.text));
-    emit(state.copyWith(response: response));
-    changeLoading();
-
-    if (response == true) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const HomeView()));
+    if (formKey.currentState != null && formKey.currentState!.validate()) {
+      changeLoading();
+      final response = await _loginService
+          .logIn(User(emailController.text, passwordController.text));
+      emit(state.copyWith(response: response));
+      changeLoading();
+      if (response == true) {
+        await Future.delayed(Duration.zero).then((value) =>
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const HomeView())));
+      }
     }
   }
 

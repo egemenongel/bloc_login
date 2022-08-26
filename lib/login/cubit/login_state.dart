@@ -11,6 +11,5 @@ class LoginState {
         isLoading: isLoading ?? this.isLoading);
   }
 
-  @override
   List<Object?> get props => [response, isLoading];
 }

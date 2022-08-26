@@ -56,9 +56,7 @@ class LoginView extends StatelessWidget {
 
   ElevatedButton _buildLoginButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () async {
-        await context.read<LoginCubit>().loginWithEmail();
-      },
+      onPressed: () async => await context.read<LoginCubit>().loginWithEmail(),
       child: const Text('LOGIN'),
     );
   }
